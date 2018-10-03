@@ -14,7 +14,7 @@ class WeAuthController extends PageController
             Debugger::inspect($code, false);
             Debugger::inspect('==================================', false);
             Debugger::inspect($csrf, false);
-            Debugger::inspect(SecurityToken::inst()->checkRequest($this->request) ? 'Yes' : 'no');
+            Debugger::inspect(SecurityToken::inst()->getSecurityID() == $csrf ? 'Yes' : 'no');
         }
     }
 }
