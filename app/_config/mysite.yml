@@ -14,3 +14,19 @@ SilverStripe\CMS\Model\SiteTree:
   extensions:
     - App\Web\Extensions\MetaExtension
     - App\Web\Extensions\SocialTagExtension
+
+SilverStripe\Security\Member:
+  extensions:
+    - App\Web\Extensions\MemberExtension
+
+SilverStripe\i18n\i18n:
+  all_locales:
+    zh_Hans: Chinese (Simplified)
+  common_locales:
+    zh_Hans:
+      name: Chinese (Simplified)
+      native: 简体中文
+
+# SilverStripe\Admin\LeftAndMain:
+#   extra_requirements_javascript:
+#     - '/resources/cms-js/cms.js'
