@@ -1,0 +1,8 @@
+{
+    "name": "leochenftw/k9-db",
+    "extra": {
+        "expose": [
+            "client/js"
+        ]
+    }
+}
