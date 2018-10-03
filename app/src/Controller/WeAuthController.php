@@ -10,7 +10,7 @@ class WeAuthController extends PageController
 {
     public function index()
     {
-        if ($code = $this->request->getVar('code') && $csrf = $this->request->getVar('state')) {
+        if (($code = $this->request->getVar('code')) && ($csrf = $this->request->getVar('state'))) {
             Debugger::inspect($code, false);
             Debugger::inspect('==================================', false);
             Debugger::inspect($csrf, false);
