@@ -6,4 +6,5 @@ After:
 ---
 SilverStripe\Control\Director:
   rules:
-    'signup': 'KSolution\Controller\SignupController'
+    we-auth : 'KSolution\Controller\WeAuthController'
+    signup : 'KSolution\Controller\SignupController'

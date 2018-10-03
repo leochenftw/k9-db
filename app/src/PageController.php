@@ -1,6 +1,7 @@
 <?php
 
 namespace {
+    use SilverStripe\Security\SecurityToken;
     use Leochenftw\Debugger;
     use SilverStripe\CMS\Controllers\ContentController;
     use SilverStripe\Control\Director;
@@ -116,6 +117,11 @@ namespace {
             }
 
             return null;
+        }
+
+        public function getCSRF()
+        {
+            return SecurityToken::inst()->getSecurityID();
         }
 
         public function getFullURL()
