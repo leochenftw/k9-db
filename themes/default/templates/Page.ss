@@ -28,27 +28,17 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="theme-color" content="#ffffff"> --%>
     <script src='https://www.google.com/recaptcha/api.js'></script>
-    <script src="//res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
+
     $SiteConfig.GoogleAnalyticsCode.RAW
     $SiteConfig.GTMHead.RAW
 </head>
 <body class="$ClassName.ShortName.LowerCase" <% if $i18nScriptDirection %>dir="$i18nScriptDirection"<% end_if %>>
 $SiteConfig.GTMBody.RAW
 <% include Header %>
-<div id="login_container"></div>
 <main id="main" class="main">
     $Layout
 </main>
 <% include Footer %>
 <script src="$ThemeDir/dist/main.min.js" defer></script>
-<script>
-var obj = new WxLogin({
-    // self_redirect:true,
-    id:"login_container",
-    appid: "wxb19a69fd97bc9fa9",
-    scope: "snsapi_login",
-    redirect_uri: "http://ningdelen.cn/signup"
-});
-</script>
 </body>
 </html>
