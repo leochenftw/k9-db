@@ -1,7 +1,7 @@
 <?php
 
 namespace {
-
+    use Leochenftw\Debugger;
     use SilverStripe\CMS\Controllers\ContentController;
     use SilverStripe\Control\Director;
     use SilverStripe\Core\Convert;
@@ -116,6 +116,11 @@ namespace {
             }
 
             return null;
+        }
+
+        public function getFullURL()
+        {
+            return $_SERVER['REQUEST_URI'];
         }
     }
 }
