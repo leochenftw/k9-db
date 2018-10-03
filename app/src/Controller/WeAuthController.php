@@ -4,7 +4,7 @@ namespace KSolution\Controller;
 use PageController;
 use SilverStripe\Security\SecurityToken;
 use GuzzleHttp\Client;
-use SaltedHerring\Debugger;
+use Leochenftw\Debugger;
 
 class WeAuthController extends PageController
 {
