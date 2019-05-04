@@ -1,21 +1,19 @@
 <?php
 
 namespace Leochenftw\API;
-use Leochenftw\Controllers\APIBaseController;
+use Leochenftw\Restful\RestfulController;
 use SilverStripe\Security\SecurityToken;
 use SilverStripe\Security\Member;
 
-class SessionAPI extends APIBaseController
+class SessionAPI extends RestfulController
 {
-    protected static $allowed_request_methods   =   [
-        'options'   =>  true,
+    /**
+     * Defines methods that can be called directly
+     * @var array
+     */
+    private static $allowed_actions = [
         'get'       =>  true
     ];
-
-    public function options($request)
-    {
-        return ':)';
-    }
 
     public function get($request)
     {

@@ -1,24 +1,22 @@
 <?php
 
 namespace Leochenftw\API;
-use Leochenftw\Controllers\APIBaseController;
+use Leochenftw\Restful\RestfulController;
 use SilverStripe\Security\SecurityToken;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\IdentityStore;
 use SilverStripe\Core\Injector\Injector;
 use Leochenftw\Debugger;
 
-class SignupAPI extends APIBaseController
+class SignupAPI extends RestfulController
 {
-    protected static $allowed_request_methods   =   [
-        'options'   =>  true,
+    /**
+     * Defines methods that can be called directly
+     * @var array
+     */
+    private static $allowed_actions = [
         'post'      =>  '->isAuthenticated'
     ];
-
-    public function options($request)
-    {
-        return ':)';
-    }
 
     public function isAuthenticated()
     {
@@ -67,7 +65,7 @@ class SignupAPI extends APIBaseController
                 if ($member->isActivated()) {
                     return $this->httpError(403, '该手机号码已被注册.');
                 }
-                
+
                 $member->send_sms();
                 return  [
                     'member_id' =>  $member->ID,

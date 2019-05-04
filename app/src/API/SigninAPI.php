@@ -1,7 +1,7 @@
 <?php
 
 namespace Leochenftw\API;
-use Leochenftw\Controllers\APIBaseController;
+use Leochenftw\Restful\RestfulController;
 use SilverStripe\Security\SecurityToken;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\IdentityStore;
@@ -9,17 +9,15 @@ use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Security\PasswordEncryptor;
 use Leochenftw\Debugger;
 
-class SigninAPI extends APIBaseController
+class SigninAPI extends RestfulController
 {
-    protected static $allowed_request_methods   =   [
-        'options'   =>  true,
+    /**
+     * Defines methods that can be called directly
+     * @var array
+     */
+    private static $allowed_actions = [
         'post'      =>  '->isAuthenticated'
     ];
-
-    public function options($request)
-    {
-        return ':)';
-    }
 
     public function isAuthenticated()
     {
