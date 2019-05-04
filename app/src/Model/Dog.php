@@ -6,6 +6,12 @@ use Leochenftw\Debugger;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\Tab;
 use Leochenftw\Grid;
+use SilverStripe\Security\Member;
+use SilverStripe\Assets\Image;
+use KSolution\Dog;
+use SilverStripe\Assets\Folder;
+use SilverStripe\AssetAdmin\Controller\AssetAdmin;
+
 /**
  * Description
  *
@@ -31,6 +37,7 @@ class Dog extends DataObject
      */
     private static $db = [
         'Title'             =>  'Varchar(128)',
+        'Content'           =>  'Text',
         'Sex'               =>  'Enum("公,母")',
         'DoB'               =>  'Date',
         'ChipsSerial'       =>  'Varchar(128)',
@@ -40,6 +47,12 @@ class Dog extends DataObject
         'ReproTest'         =>  'Enum("通过,未通过")',
         'Breeder'           =>  'Varchar(128)',
         'OwnedBy'           =>  'Varchar(128)'
+    ];
+
+    private static $indexes =   [
+        'ChipsSerial'   =>  [
+            'type' => 'unique'
+        ]
     ];
 
     /**
@@ -53,11 +66,28 @@ class Dog extends DataObject
      * @var array
      */
     private static $has_one = [
-        'CertCopy'          =>  'SilverStripe\Assets\Image',
-        'Breed'             =>  'KSolution\Breed',
-        'Portrait'          =>  'SilverStripe\Assets\Image',
-        'Mother'            =>  'KSolution\Dog',
-        'Father'            =>  'KSolution\Dog'
+        'CertCopy'          =>  Image::class,
+        'HEInpsection'      =>  Image::Class,
+        'Breed'             =>  Breed::class,
+        'Portrait'          =>  Image::class,
+        'Mother'            =>  Dog::class,
+        'Father'            =>  Dog::class,
+        'CurrentOwner'      =>  Member::class
+    ];
+
+    public function populateDefaults()
+    {
+        if ($member = Member::currentUser()) {
+            $this->CurrentOwner =   $member->ID;
+        }
+    }
+
+    private static $cascade_deletes = [
+        'Photos',
+        'OwnerHistory',
+        'HipElbowScores',
+        'Awards',
+        'Videos'
     ];
 
     /**
@@ -78,8 +108,47 @@ class Dog extends DataObject
      * @var array
      */
     private static $many_many = [
-        'Photos'            =>  'SilverStripe\Assets\Image'
+        'Photos'            =>  Image::class
     ];
+
+    public function getData()
+    {
+        return [
+            'id'        =>  $this->ID,
+            'title'     =>  $this->Title,
+            'content'   =>  $this->Content,
+            'sex'       =>  $this->Sex,
+            'dob'       =>  $this->DoB,
+            'chip_no'   =>  $this->ChipsSerial,
+            'cert_no'   =>  $this->CertNumber,
+            'job_title' =>  $this->JobTitle,
+            'dna'       =>  $this->DNA,
+            'reproable' =>  $this->ReproTest,
+            'breeder'   =>  $this->Breeder,
+            'owned_by'  =>  $this->OwnedBy,
+            'cert_copy' =>  $this->CertCopy()->exists() ? [
+                                'id'    =>  $this->CertCopy()->ID,
+                                'label' =>  $this->CertCopy()->Title,
+                                'link'  =>  $this->CertCopy()->getAbsoluteURL(),
+                                'ext'   =>  $this->CertCopy()->getExtension()
+                            ] : null,
+            'he_insp'   =>  $this->HEInpsection()->exists() ? [
+                                'id'    =>  $this->HEInpsection()->ID,
+                                'label' =>  $this->HEInpsection()->Title,
+                                'link'  =>  $this->HEInpsection()->getAbsoluteURL(),
+                                'ext'   =>  $this->HEInpsection()->getExtension()
+                            ] : null,
+            'breed'     =>  $this->Breed()->exists() ? $this->Breed()->Title : null,
+            'photos'    =>  $this->Photos()->sort(['Sort' => 'ASC'])->getData(),
+            'dog_mum'   =>  $this->Mother()->exists() ? $this->Mother()->getData() : null,
+            'dog_dad'   =>  $this->Father()->exists() ? $this->Father()->getData() : null,
+        ];
+
+        // 'Portrait'          =>  Image::class,
+        // 'Mother'            =>  Dog::class,
+        // 'Father'            =>  Dog::class,
+        // 'CurrentOwner'      =>  Member::class
+    }
 
     /**
      * CMS Fields
@@ -199,9 +268,48 @@ class Dog extends DataObject
             ]);
         }
 
-
-
         $this->extend('updateCMSFields', $fields);
         return $fields;
+    }
+
+    public function add_photo(&$data, $i)
+    {
+        if ($this->exists()) {
+            $fold           =   Folder::find_or_make('MemberContributedImages/' . Member::currentUser()->ID . '/DogPhotos');
+            $img            =   Image::create();
+
+            $filename       =   substr(sha1($data['name']), 0, 16);
+            $segments       =   explode('.', $data['name']);
+            $ext            =   count($segments) > 1 ? $segments[count($segments) - 1] : 'jpg';
+
+            $img->setFromLocalFile($data['tmp_name'], $filename . '.' . $ext);
+            $img->ParentID  =   $fold->ID;
+            $img->Sort      =   $i;
+            $img->Title     =   count($segments) > 1 ? $segments[0] : $data['name'];
+            $img->write();
+            AssetAdmin::create()->generateThumbnails($img);
+            $img->publishSingle();
+            $this->Photos()->add($img);
+        }
+    }
+
+    public function create_file($path, $file_name)
+    {
+        $fold           =   Folder::find_or_make('DogFiles/' . $this->ID);
+
+        $img            =   Image::create();
+
+        $filename       =   substr(sha1($file_name), 0, 16);
+        $segments       =   explode('.', $file_name);
+        $ext            =   count($segments) > 1 ? $segments[count($segments) - 1] : 'jpg';
+
+        $img->setFromLocalFile($path, $file_name);
+        $img->ParentID  =   $fold->ID;
+        $img->Title     =   count($segments) > 1 ? $segments[0] : $file_name;
+        $img->write();
+        AssetAdmin::create()->generateThumbnails($img);
+        $img->publishSingle();
+
+        return $img->ID;
     }
 }

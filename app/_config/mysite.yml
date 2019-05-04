@@ -15,6 +15,16 @@ SilverStripe\CMS\Model\SiteTree:
     - App\Web\Extensions\MetaExtension
     - App\Web\Extensions\SocialTagExtension
 
+SilverStripe\ORM\DataList:
+  extensions:
+    - App\Web\Extensions\DatalistExtension
+SilverStripe\ORM\ArrayList:
+  extensions:
+    - App\Web\Extensions\DatalistExtension
+SilverStripe\Assets\Image:
+  extensions:
+    - App\Web\Extensions\ImageExtension
+
 SilverStripe\Security\Member:
   extensions:
     - App\Web\Extensions\MemberExtension
@@ -27,6 +37,23 @@ SilverStripe\i18n\i18n:
       name: Chinese (Simplified)
       native: 简体中文
 
+Leochenftw\Utils\SMS:
+  # appid : 1400154655
+  # appkey : a44716ccf08d113ff7de669898f72dcb
+  appid : 1400152786
+  appkey : cb97534d78cd23fd5286ce0d2c565265
+  template_id : 215043
+  signature : 陈晋晋的个人履历
 # SilverStripe\Admin\LeftAndMain:
 #   extra_requirements_javascript:
 #     - '/resources/cms-js/cms.js'
+
+Leochenftw\Controllers\APIBaseController:
+  AccessControlAllowOrigin : 'http://k9solution.leochen.co.nz/'
+
+---
+Only:
+  environment: 'dev'
+---
+Leochenftw\Controllers\APIBaseController:
+  AccessControlAllowOrigin : 'https://localhost:8081'

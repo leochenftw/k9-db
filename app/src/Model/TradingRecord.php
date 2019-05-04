@@ -54,7 +54,13 @@ class TradingRecord extends DataObject
                                             'From.Title'        =>  '卖家',
                                             'To.Title'          =>  '买家'
                                         ];
-
+/**
+ * Defines a default list of filters for the search context
+ * @var array
+ */
+private static $searchable_fields = [
+    'DateHappened'
+];
     /**
      * Default sort ordering
      * @var array

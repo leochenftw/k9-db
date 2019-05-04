@@ -4,6 +4,7 @@ namespace Leochenftw\Controllers;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
 use Leochenftw\Debugger;
+use SilverStripe\Core\Config\Config;
 
 /**
  *
@@ -21,19 +22,16 @@ class APIBaseController extends Controller
     {
         $request        =   $this->request;
         $header         =   $this->getResponse();
-        $method         =   $this->request->httpMethod();
+        $method         =   strtolower($this->request->httpMethod());
+        $this->shuvel_headers();
 
         $this->can_proceed();
 
-        if (!Director::isLive()) {
-            $header->addHeader('Access-Control-Allow-Origin', '*');
-            $header->addHeader('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-            $header->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-            // $header->addHeader('Access-Control-Allow-Credentials', true);
-        }
-
         if ($request->isAjax()) {
+            $header->addHeader('Content-type', 'application/json');
             return json_encode($this->$method($this->request));
+        } else if ($methd = 'options') {
+            return $this->$method($this->request);
         }
 
         return $this->httpError(400, 'ajax request only');
@@ -41,7 +39,7 @@ class APIBaseController extends Controller
 
     private function can_proceed()
     {
-        $method         =   $this->request->httpMethod();
+        $method         =   strtolower($this->request->httpMethod());
         if (isset(static::$allowed_request_methods[$method])) {
             $allowed    =   static::$allowed_request_methods[$method];
 
@@ -50,7 +48,7 @@ class APIBaseController extends Controller
                     return true;
                 }
 
-                return $this->httpError(400, 'method does not allowed');
+                return $this->httpError(400, 'method is not allowed');
             }
 
             $allowed    =   str_replace('->', '', $allowed);
@@ -61,12 +59,26 @@ class APIBaseController extends Controller
                     return true;
                 }
 
-                return $this->httpError(400, 'method does not allowed');
+                return $this->httpError(400, 'method is not allowed');
             }
 
             return $this->httpError(400, 'method does not exist');
         }
 
-        return $this->httpError(400, 'method does not allowed');
+        return $this->httpError(400, 'method is not allowed');
+    }
+
+    protected function shuvel_headers()
+    {
+        $header         =   $this->getResponse();
+        $method         =   strtolower($this->request->httpMethod());
+
+        if (!Director::isLive()) {
+            $allowed_origins    =   Config::inst()->get(__class__, 'AccessControlAllowOrigin');
+            $header->addHeader('Access-Control-Allow-Origin', $allowed_origins);
+            $header->addHeader('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+            $header->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+            $header->addHeader('Access-Control-Allow-Credentials', "true");
+        }
     }
 }

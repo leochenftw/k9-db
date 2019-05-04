@@ -21,7 +21,7 @@ class Award extends DataObject
      * Plural name for CMS
      * @var string
      */
-    private static $plural_name = ' 奖项';
+    private static $plural_name = '奖项';
     /**
      * Defines the database table name
      * @var string

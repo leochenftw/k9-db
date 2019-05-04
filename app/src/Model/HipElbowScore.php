@@ -56,6 +56,16 @@ class HipElbowScore extends DataObject
         'DateMeasured'      =>  'Date'
     ];
 
+    /**
+     * Defines a default list of filters for the search context
+     * @var array
+     */
+    private static $searchable_fields = [
+        'Hip',
+        'Elbow',
+        'DateMeasured'
+    ];
+
     public function Title()
     {
         return 'HD' . trim($this->Hip) . '/ED' . trim($this->Elbow);
