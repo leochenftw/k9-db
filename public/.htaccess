@@ -55,7 +55,7 @@ ErrorDocument 500 /assets/error-500.html
 <IfModule mod_headers.c>
     BrowserMatch MSIE ie
     Header set X-UA-Compatible "IE=Edge,chrome=1" env=ie
-    Header set Access-Control-Allow-Origin "https://localhost:8080"
+    Header set Access-Control-Allow-Origin "https://localhost:8083"
     Header set Access-Control-Allow-Credentials "true"
     Header set Access-Control-Allow-Headers 'Content-Type, Authorization, X-Requested-With'
 </IfModule>
