@@ -1,14 +1,20 @@
 <?php
 
 namespace {
-    use SilverStripe\Security\SecurityToken;
-    use Leochenftw\Debugger;
+
     use SilverStripe\CMS\Controllers\ContentController;
-    use SilverStripe\Control\Director;
+    use SilverStripe\Security\SecurityToken;
+    use SilverStripe\Core\Config\Config;
     use SilverStripe\Core\Convert;
+    use SilverStripe\Control\HTTPRequest;
     use SilverStripe\SiteConfig\SiteConfig;
     use SilverStripe\View\ArrayData;
     use SilverStripe\View\Requirements;
+    use SilverStripe\Control\Director;
+    use Leochenftw\Debugger;
+    use Leochenftw\Util;
+    use GuzzleHttp\Client;
+    use GuzzleHttp\Exception\ClientException;
 
     class PageController extends ContentController
     {
@@ -29,31 +35,58 @@ namespace {
          */
         private static $allowed_actions = [];
 
+        public function index(HTTPRequest $request)
+        {
+            // check for CORS options request
+            if ($this->request->httpMethod() === 'OPTIONS' ) {
+                // create direct response without requesting any controller
+                $response   =   $this->getResponse();
+                // set CORS header from config
+                $response   =   $this->addCORSHeaders($response);
+                $response->output();
+                exit;
+            }
+
+            $header     =   $this->getResponse();
+
+            if ($this->request->isAjax()) {
+                $this->addCORSHeaders($header);
+                return json_encode($this->getData());
+            }
+
+            if (Director::isLive()) {
+                return $this->redirect('https://www.playmarket.org.nz/'. 301);
+            }
+
+            return $this->renderWith([$this->ClassName, 'Page']);
+        }
+
         protected function init()
         {
             parent::init();
-            // You can include any CSS or JS required by your project here.
-            // See: https://docs.silverstripe.org/en/developer_guides/templates/requirements/
-            Requirements::themedCSS('styles');
-            if (SilverStripe\Control\Director::isDev()) {
-                SilverStripe\View\SSViewer::config()->set('source_file_comments', true);
-            }
         }
 
         public function MetaTags($includeTitle = true)
         {
-            $tags = parent::MetaTags($includeTitle);
+            $tags = '';
 
             if ($this->ConanicalURL) {
-                $tags .= "<link rel=\"canonical\" href=\"" . Convert::raw2att($this->ConanicalURL) . "\" />\n";
-            } elseif (SiteConfig::current_site_config()->ConanicalURL) {
+                $tags .= "<link rel=\"canonical\" href=\"" . Convert::raw2att($this->ConanicalURL) . "\" data-vue-meta=\"true\" />\n";
+            } else {
                 $tags .= "<link rel=\"canonical\" href=\"";
-                $tags .= Convert::raw2att(SiteConfig::current_site_config()->ConanicalURL) . "\" />\n";
+                $tags .= $this->AbsoluteLink() . "\" data-vue-meta=\"true\" />\n";
             }
 
             if ($this->MetaKeywords) {
-                $tags .= "<meta name=\"keywords\" content=\"" . Convert::raw2att($this->MetaKeywords) . "\" />\n";
+                $tags .= "<meta name=\"keywords\" content=\"" . Convert::raw2att($this->MetaKeywords) . "\" data-vue-meta=\"true\" />\n";
             }
+
+            if ($this->MetaDescription) {
+                $tags .= "<meta name=\"description\" content=\"" . Convert::raw2att($this->MetaDescription) . "\" data-vue-meta=\"true\" />\n";
+            } else {
+                $tags .= "<meta name=\"description\" content=\"" . Convert::raw2att(Util::getWords($this->ContentLeft . ' ' . $this->ContentRight, 50)) . "\" data-vue-meta=\"true\" />\n";
+            }
+
             if ($this->ExtraMeta) {
                 $tags .= $this->ExtraMeta . "\n";
             }
@@ -65,9 +98,9 @@ namespace {
 
             // prevent bots from spidering the site whilest in dev.
             if (!Director::isLive()) {
-                $tags .= "<meta name=\"robots\" content=\"noindex, nofollow, noarchive\" />\n";
+                $tags .= "<meta name=\"robots\" content=\"noindex, nofollow, noarchive\" data-vue-meta=\"true\" />\n";
             } elseif (!empty($this->MetaRobots)) {
-                $tags .= "<meta name=\"robots\" content=\"$this->MetaRobots\" />\n";
+                $tags .= "<meta name=\"robots\" content=\"$this->MetaRobots\" data-vue-meta=\"true\" />\n";
             }
 
             $this->extend('MetaTags', $tags);
@@ -117,6 +150,31 @@ namespace {
             }
 
             return null;
+        }
+
+        protected function addCORSHeaders($response)
+        {
+            $config             =   Config::inst()->get('Leochenftw\Restful\RestfulController');
+
+            $default_origin     =   $config['CORSOrigin'];
+            $allowed_origins    =   $config['CORSOrigins'];
+
+            if (in_array($this->request->getHeader('origin'), $allowed_origins)) {
+                $response->addHeader('Access-Control-Allow-Origin', $this->request->getHeader('origin'));
+            } else {
+                $response->addHeader('Access-Control-Allow-Origin', $default_origin);
+            }
+
+            $response->addHeader('Access-Control-Allow-Methods', $config['CORSMethods']);
+            $response->addHeader('Access-Control-Max-Age', $config['CORSMaxAge']);
+            $response->addHeader('Access-Control-Allow-Headers', $config['CORSAllowHeaders']);
+            if ($config['CORSAllowCredentials']) {
+                $response->addHeader('Access-Control-Allow-Credentials', 'true');
+            }
+
+            $response->addHeader('Content-Type', 'application/json');
+
+            return $response;
         }
 
         public function getCSRF()
