@@ -29,6 +29,10 @@ SilverStripe\Security\Member:
   extensions:
     - App\Web\Extensions\MemberExtension
 
+gorriecoe\Link\Models\Link:
+  extensions:
+    - App\Web\Extension\LinkExtension
+
 SilverStripe\i18n\i18n:
   all_locales:
     zh_Hans: Chinese (Simplified)
@@ -50,6 +54,29 @@ Leochenftw\Utils\SMS:
 
 Leochenftw\Controllers\APIBaseController:
   AccessControlAllowOrigin : 'http://k9solution.leochen.co.nz/'
+
+SaltedHerring\Salted\Cropper\SaltedCroppableImage:
+  extensions:
+    - App\Web\Extension\SaltedImageExtension
+
+App\Web\Layout\DogPage:
+  preset_content_sections:
+    - 整体
+    - 毛发
+    - 颜色
+    - 头部
+    - 眼睛
+    - 耳朵
+    - 鼻子
+    - 尾巴
+    - 胸部
+    - 颈部
+    - 前躯
+    - 后躯
+    - 特性
+    - 适合人群
+    - 养犬建议
+    - 用户印象
 
 ---
 Only:

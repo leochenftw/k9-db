@@ -6,11 +6,11 @@ use GuzzleHttp\Client;
 use Leochenftw\Debugger;
 use Page;
 
-class SignupController extends PageController
+class SigninController extends PageController
 {
     public function getTitle()
     {
-        return '注册用户';
+        return '用户登录';
     }
 
     public function Title()
@@ -25,7 +25,7 @@ class SignupController extends PageController
 
         if ($page) {
             $data               =   $page->getData();
-            $data['pagetype']   =   'signup';
+            $data['pagetype']   =   'signin';
         }
 
         $data['title']  =   $this->getTitle();

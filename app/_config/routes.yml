@@ -7,13 +7,16 @@ After:
 SilverStripe\Control\Director:
   rules:
     we-auth : 'KSolution\Controller\WeAuthController'
+    signin : 'KSolution\Controller\SigninController'
     signup : 'KSolution\Controller\SignupController'
+    'promo-handler/$hash': 'KSolution\Controller\PromoHandler'
     'api/v1/signup' : 'Leochenftw\API\SignupAPI'
     'api/v1/signin' : 'Leochenftw\API\SigninAPI'
     'api/v1/signout' : 'Leochenftw\API\SignoutAPI'
     'api/v1/recovery' : 'Leochenftw\API\RecoveryAPI'
     'api/v1/session' : 'Leochenftw\API\SessionAPI'
     'api/v1/member' : 'Leochenftw\API\MemberAPI'
+    member/$action: 'App\Web\Layout\MemberCentreController'
     'api/v1/photo/$ID/$Action' : 'Leochenftw\API\PhotoAPI'
     'api/v1/video/$ID/$Action' : 'Leochenftw\API\VideoAPI'
     'api/v1/password/$Action' : 'Leochenftw\API\PasswordAPI'

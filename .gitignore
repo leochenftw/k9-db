@@ -14,3 +14,7 @@ themes/default/dist
 
 silverstripe.log
 public/assets
+betterbuttons/
+assets/
+backup.sql
+public/static

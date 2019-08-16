@@ -8,37 +8,35 @@
 <head>
     $SiteConfig.GoogleSiteVerificationCode.RAW
     <% base_tag %>
-    <title><% if $MetaTitle %>$MetaTitle<% else %>$Title<% end_if %></title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title><% if $URLSegment == 'home' %>$SiteConfig.Title<% else %><% if $MetaTitle %>$MetaTitle<% else %>$Title<% end_if %> | $SiteConfig.Title<% end_if %></title>
+    <meta charset="utf-8" data-vue-meta="true">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" data-vue-meta="true">
     $MetaTags(false)
     <% include OG %>
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <% if $ThemedCSS %>
-        <link rel="stylesheet" type="text/css" href="$ThemedCSS" />
-    <% end_if %>
-
+    $SiteConfig.VueCSS.RAW
     <%-- <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#d7221c">
-    <meta name="msapplication-TileColor" content="#ffffff">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#000000">
     <meta name="theme-color" content="#ffffff"> --%>
-    <script src='https://www.google.com/recaptcha/api.js'></script>
-
     $SiteConfig.GoogleAnalyticsCode.RAW
     $SiteConfig.GTMHead.RAW
 </head>
-<body class="$ClassName.ShortName.LowerCase" <% if $i18nScriptDirection %>dir="$i18nScriptDirection"<% end_if %>>
+<body <% if $i18nScriptDirection %>dir="$i18nScriptDirection"<% end_if %>>
 $SiteConfig.GTMBody.RAW
-<% include Header %>
+<% if $URLSegment == 'Security' %>
 <main id="main" class="main">
     $Layout
 </main>
-<% include Footer %>
-<script src="$ThemeDir/dist/main.min.js" defer></script>
+<% else %>
+<div id=app>
+    <% include Header %>
+    $Layout
+    <% include Footer %>
+</div>
+$SiteConfig.VueJS.RAW
+<% end_if %>
 </body>
 </html>

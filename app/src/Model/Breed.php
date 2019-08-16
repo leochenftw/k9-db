@@ -26,7 +26,7 @@ class Breed extends DataObject
      * Defines the database table name
      * @var string
      */
-    private static $table_name = 'KSolution';
+    private static $table_name = 'Breed';
     /**
      * Database fields
      * @var array

@@ -11,13 +11,25 @@ namespace {
     use SilverStripe\SiteConfig\SiteConfig;
     use SilverStripe\Control\Controller;
     use Leochenftw\Util;
+    use Leochenftw\Grid;
     use SilverStripe\Security\Member;
+    use SilverStripe\Security\SecurityToken;
+    use App\Web\Model\Promotion;
+    use App\Web\Layout\Homepage;
 
     class Page extends SiteTree
     {
         private static $db = [];
 
         private static $has_one = [];
+
+        /**
+         * Has_many relationship
+         * @var array
+         */
+        private static $many_many = [
+            'Promotions'    =>  Promotion::class
+        ];
 
         /**
          * CMS Fields
@@ -40,6 +52,28 @@ namespace {
                 'OG'
             );
 
+            if ($title = $fields->fieldbyName('Root.Main.Title')) {
+                $title->setTitle('标题');
+            }
+
+            if ($urlseg = $fields->fieldbyName('Root.Main.URLSegment')) {
+                $urlseg->setTitle('页面地址');
+            }
+
+            if ($menu = $fields->fieldbyName('Root.Main.MenuTitle')) {
+                $menu->setTitle('导航标题');
+            }
+
+            if ($content = $fields->fieldbyName('Root.Main.Content')) {
+                $content->setTitle('页面内容');
+            }
+
+            $fields->addFieldToTab(
+                'Root.Ads',
+                Grid::make('Promotions', '广告', $this->Promotions(), false, 'GridFieldConfig_RelationEditor')
+            );
+
+            $fields->fieldByName('Root.Ads')->setTitle('广告');
 
             return $fields;
         }
@@ -49,9 +83,7 @@ namespace {
             $siteconfig =   SiteConfig::current_site_config();
             $data       =   [
                 'id'            =>  $this->ID,
-                'siteconfig'    =>  [
-                    'sitename'  =>  $siteconfig->Title,
-                ],
+                'siteconfig'    =>  SiteConfig::current_site_config()->getData(),
                 'navigation'    =>  $this->get_menu_items(),
                 'title'         =>  $this->Title,
                 'content'       =>  Util::preprocess_content($this->Content),
@@ -62,6 +94,11 @@ namespace {
                                         'link'  =>  rtrim($this->Parent()->Link(), '/')
                                     ] : null,
                 'ancestors'     =>  $this->get_ancestors($this),
+                'promo'         =>  $this->Promotions()->getData(),
+                'session'       =>  [
+                                        'csrf'      =>  SecurityToken::inst()->getSecurityID(),
+                                        'member'    =>  Member::currentUserID()
+                                    ],
                 'member'        =>  Member::currentUserID(),
                 'meta'          =>  [
                     'canonical'     =>  str_replace(
@@ -227,7 +264,15 @@ namespace {
 
         private function get_ancestors($item, $ancestors = [])
         {
+            // Debugger::inspect($item->ParentID);
             if (!$item->Parent()->exists()) {
+                if ($home = Homepage::get()->first()) {
+                    $ancestors[]    =   [
+                        'title' =>  $home->Title,
+                        'link'   =>  $home->Link() != '/' ? rtrim($home->Link(), '/') : '/'
+                    ];
+                }
+
                 return array_reverse($ancestors);
             }
 
@@ -241,7 +286,11 @@ namespace {
 
         private function get_menu_items($nav = null)
         {
-            $nav    =   empty($nav) ? Controller::curr()->getMenu(1) : $nav;
+            $ctrler =   Controller::curr();
+            if (empty($ctrler) || !$ctrler->hasMethod('getMenu')) {
+                $ctrler =   new PageController();
+            }
+            $nav    =   empty($nav) ? $ctrler->getMenu(1) : $nav;
             $list   =   [];
             foreach ($nav as $item) {
                 $link   =   $item->Link();
@@ -249,8 +298,7 @@ namespace {
                 $list[] =   [
                     'label'     =>  $item->Title,
                     'url'       =>  $link != '/' ? rtrim($link, '/') : '/',
-                    'active'    =>  $item->isCurrent(),
-                    'section'   =>  $item->isSection(),
+                    'active'    =>  $item->isCurrent() || $item->isSection(),
                     'toggled'   =>  false,
                     'sub'       =>  $this->get_menu_items($item->Children()),
                     'pagetype'  =>  $this->get_type($item->ClassName)
@@ -263,7 +311,7 @@ namespace {
         private function get_type($class)
         {
             $seg    =   explode('\\', $class);
-            return $seg[count($seg) - 1];
+            return strtolower($seg[count($seg) - 1]);
         }
     }
 }

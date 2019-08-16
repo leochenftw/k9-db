@@ -2,7 +2,15 @@
 
 namespace App\Web\Extensions;
 
+use SilverStripe\AssetAdmin\Forms\UploadField;
+use SilverStripe\Assets\Image;
+use SilverStripe\Forms\EmailField;
+use SilverStripe\Forms\TextField;
+use SilverStripe\Forms\FieldList;
 use SilverStripe\ORM\DataExtension;
+use App\Web\Model\FooterLink;
+use Leochenftw\Util;
+use Leochenftw\Grid;
 
 /**
  * @file SiteConfigExtension
@@ -16,8 +24,104 @@ class SiteConfigExtension extends DataExtension
      * @var array
      */
     private static $db = [
-        'FrontendEntryFile' =>  'Varchar(1024)'
+        'FrontendEntryFile' =>  'Varchar(1024)',
+        'ContactEmail'      =>  'Varchar(256)',
+        'ContactPhone'      =>  'Varchar(16)',
+        'ContactWechat'     =>  'Varchar(32)',
+        'WelcomeMessage'    =>  'Varchar(128)'
     ];
+
+    /**
+     * Has_one relationship
+     * @var array
+     */
+    private static $has_one = [
+        'QRCode'    =>  Image::class
+    ];
+
+    /**
+     * Has_many relationship
+     * @var array
+     */
+    private static $has_many = [
+        'FooterLinks'   =>  FooterLink::class
+    ];
+
+    /**
+     * Relationship version ownership
+     * @var array
+     */
+    private static $owns = [
+        'QRCode'
+    ];
+
+    /**
+     * Update Fields
+     * @return FieldList
+     */
+    public function updateCMSFields(FieldList $fields)
+    {
+        $fields->addFieldsToTab(
+            'Root.Contact us',
+            [
+                EmailField::create(
+                    'ContactEmail',
+                    '工作邮箱'
+                ),
+                TextField::create(
+                    'ContactPhone',
+                    '联系电话'
+                ),
+                TextField::create(
+                    'ContactWechat',
+                    '微信号'
+                ),
+                UploadField::create(
+                    'QRCode',
+                    '二维码'
+                )
+            ]
+        );
+
+        $fields->addFieldToTab(
+            'Root.Footer Links',
+            Grid::make('FooterLinks', 'FooterLinks', $this->owner->FooterLinks())
+        );
+
+        $fields->addFieldsToTab(
+            'Root.Frontend',
+            [
+                TextField::create('FrontendEntryFile', 'Path(s) to frontend\'s index.hmlt file')
+            ]
+        );
+
+        $fields->addFieldToTab(
+            'Root.Main',
+            TextField::create(
+                'WelcomeMessage',
+                '页面顶部欢迎信息'
+            )
+        );
+
+        return $fields;
+    }
+
+    public function getData()
+    {
+        return [
+            'title'             =>  $this->owner->Title,
+            'contact'           =>  [
+                'email'     =>  $this->owner->ContactEmail,
+                'phone'     =>  $this->owner->ContactPhone,
+                'wechat'    =>  [
+                    'official_account'  =>  $this->owner->ContactWechat,
+                    'qr_code'           =>  $this->owner->QRCode()->getData()
+                ]
+            ],
+            'menu'              =>  $this->owner->FooterLinks()->getData(),
+            'welcome_message'   =>  $this->owner->WelcomeMessage
+        ];
+    }
 
     private function read_vue_entry_file()
     {
