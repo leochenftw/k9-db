@@ -15,6 +15,7 @@ use Leochenftw\Grid;
 use KSolution\Photoset;
 use KSolution\VideoRecord;
 use KSolution\Dog;
+use App\Web\Layout\PersonnelPage;
 
 /**
  * Description
@@ -43,7 +44,8 @@ class MemberExtension extends DataExtension
         'Company'           =>  'Varchar(64)',
         'JobTitle'          =>  'Varchar(32)',
         'Occupation'        =>  'Varchar(64)',
-        'YearsExp'          =>  'Int'
+        'YearsExp'          =>  'Int',
+        'Viewed'            =>  'Int'
     ];
 
     /**
@@ -190,6 +192,16 @@ class MemberExtension extends DataExtension
         $croppable->CropperWidth    =   $data->cropper_width;
         $croppable->CropperHeight   =   $data->cropper_height;
         $croppable->write();
+    }
+
+    public function getTileData()
+    {
+        return [
+            'nickname'  =>  $this->owner->Username,
+            'portrait'  =>  $this->owner->Portrait()->getData(440, 440),
+            'link'      =>  PersonnelPage::get()->first()->Link() . $this->owner->ID,
+            'viewed'    =>  $this->owner->Viewed
+        ];
     }
 
     public function getData()

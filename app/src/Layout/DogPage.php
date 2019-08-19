@@ -12,6 +12,7 @@ use App\Web\Model\DogContent;
 use Leochenftw\Util;
 use Leochenftw\Grid;
 use App\Web\Model\DogUsage;
+use Cocur\Slugify\Slugify;
 use SaltedHerring\Salted\Cropper\SaltedCroppableImage;
 use SaltedHerring\Salted\Cropper\Fields\CroppableImageField;
 
@@ -23,6 +24,11 @@ use SaltedHerring\Salted\Cropper\Fields\CroppableImageField;
  */
 class DogPage extends Page
 {
+    private $body_sizes =   [
+        'small'     =>  '小型犬',
+        'medium'    =>  '中型犬',
+        'large'     =>  '大型犬'
+    ];
     /**
      * Defines the database table name
      * @var string
@@ -238,11 +244,7 @@ class DogPage extends Page
                 DropdownField::create(
                     'BodySize',
                     '体型',
-                    [
-                        'small'     =>  '小型犬',
-                        'medium'    =>  '中型犬',
-                        'large'     =>  '大型犬'
-                    ]
+                    $this->body_sizes
                 )->setEmptyString('- 请选择 -'),
                 TextField::create(
                     'HeightFrom',
@@ -300,26 +302,32 @@ class DogPage extends Page
             'age_from'      =>  $this->AgeFrom,
             'age_to'        =>  $this->AgeTo,
             'distribution'  =>  $this->Distribution,
-            'body_size'     =>  $this->BodySize,
+            'body_size'     =>  $this->body_sizes[$this->BodySize],
             'weight_from'   =>  $this->WeightFrom,
             'weight_to'     =>  $this->WeightTo,
             'price_from'    =>  $this->PriceFrom,
             'price_to'      =>  $this->PriceTo,
+            'original_usages'   =>  implode(',', $this->OriginalUsages()->column('Title')),
+            'usages'        =>  implode(',', $this->Usages()->column('Title'))
         ];
         $data['scores']     =   [
-            'clingy'        =>  $this->ClingyScore,
-            'noisy'         =>  $this->NoisyScore,
-            'territorial'   =>  $this->TerritorialScore,
-            'friendly'      =>  $this->FriendlyScore,
-            'shedding'      =>  $this->SheddingScore,
-            'pretty'        =>  $this->PrettyScore,
-            'smell'         =>  $this->SmellScore,
-            'saliva'        =>  $this->SalivaScore,
-            'obey'          =>  $this->ObeyScore,
-            'active'        =>  $this->ActiveScore,
-            'cold_resist'   =>  $this->ColdResistScore,
-            'heat_resist'   =>  $this->HeatResistScore,
-            'energy'        =>  $this->EnergyScore
+            'left_col'  =>  [
+                '粘人'    =>  $this->ClingyScore,
+                '护家'    =>  $this->TerritorialScore,
+                '掉毛'    =>  $this->SheddingScore,
+                '体味'    =>  $this->SmellScore,
+                '服从'    =>  $this->ObeyScore,
+                '耐寒'    =>  $this->ColdResistScore,
+                '精力'    =>  $this->EnergyScore
+            ],
+            'right_col' =>  [
+                '吵闹'    =>  $this->NoisyScore,
+                '友善'    =>  $this->FriendlyScore,
+                '美容'    =>  $this->PrettyScore,
+                '口水'    =>  $this->SalivaScore,
+                '耐热'    =>  $this->HeatResistScore,
+                '活跃'    =>  $this->ActiveScore,
+            ]
         ];
         return $data;
     }
@@ -358,7 +366,8 @@ class DogPage extends Page
     {
         parent::onBeforeWrite();
         if (!empty($this->EnglishTitle)) {
-
+            $slugify = new Slugify();
+            $this->URLSegment   =   $slugify->slugify($this->EnglishTitle);
         }
     }
 

@@ -5,6 +5,7 @@ use App\Web\Model\CarouselItem;
 use Leochenftw\Util;
 use Leochenftw\Grid;
 use Page;
+use SilverStripe\Security\Member;
 /**
  * Description
  *
@@ -46,6 +47,7 @@ class Homepage extends Page
         $data               =   parent::getData();
         $data['carousel']   =   $this->Carousel()->getData();
         $data['news']       =   NewItemPage::get()->limit(2)->getTileData();
+        $data['members']    =   Member::get()->limit(6)->getTileData();
         return $data;
     }
 }

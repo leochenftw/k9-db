@@ -30,7 +30,7 @@ Leochenftw\Restful\RestfulController:
     - 'https://localhost:8083'
     - 'https://localhost:8084'
     - 'https://localhost:8085'
-  CORSMethods: 'GET, PUT, POST, DELETE, OPTIONS'
+  CORSMethods: 'GET, POST'
   CORSMaxAge: '1000'
   CORSAllowHeaders: 'Content-Type, Authorization, X-Requested-With'
   CORSAllowCredentials: true

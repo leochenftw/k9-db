@@ -55,7 +55,7 @@ namespace {
             }
 
             if (Director::isLive()) {
-                return $this->redirect('https://www.playmarket.org.nz/'. 301);
+                // return $this->redirect('https://www.playmarket.org.nz/'. 301);
             }
 
             return $this->renderWith([$this->ClassName, 'Page']);
