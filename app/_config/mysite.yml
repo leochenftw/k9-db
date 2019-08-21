@@ -78,6 +78,11 @@ App\Web\Layout\DogPage:
     - 养犬建议
     - 用户印象
 
+SilverStripe\Core\Injector\Injector:
+  Intervention\Image\ImageManager:
+    constructor:
+      - { driver: imagick }
+
 ---
 Only:
   environment: 'dev'
