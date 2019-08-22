@@ -302,7 +302,7 @@ class DogPage extends Page
             'age_from'      =>  $this->AgeFrom,
             'age_to'        =>  $this->AgeTo,
             'distribution'  =>  $this->Distribution,
-            'body_size'     =>  $this->body_sizes[$this->BodySize],
+            'body_size'     =>  !empty($this->BodySize) ? $this->body_sizes[$this->BodySize] : '未知',
             'weight_from'   =>  $this->WeightFrom,
             'weight_to'     =>  $this->WeightTo,
             'price_from'    =>  $this->PriceFrom,
