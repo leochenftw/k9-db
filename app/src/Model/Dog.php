@@ -111,6 +111,20 @@ class Dog extends DataObject
         'Photos'            =>  Image::class
     ];
 
+    public function getTileData()
+    {
+        return [
+            'id'        =>  $this->ID,
+            'title'     =>  $this->Title,
+            'sex'       =>  $this->Sex,
+            'dob'       =>  $this->DoB,
+            'job_title' =>  $this->JobTitle,
+            'breed'     =>  $this->Breed()->exists() ? $this->Breed()->Title : null,
+            'cover'     =>  $this->Photos()->sort(['Sort' => 'ASC'])->first() ?
+                            $this->Photos()->sort(['Sort' => 'ASC'])->first()->getData() : null
+        ];
+    }
+
     public function getData()
     {
         return [

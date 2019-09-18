@@ -49,6 +49,12 @@ class PersonnelPage extends Page
     {
         if ($member = Member::get()->byID($id)) {
             $data['targeted_member']    =   $member->getData();
+            $data['pagetype']           =   'member-preview';
+            $data['title']              =   !empty($member->Username) ? $member->Username : ($member->Surname . $member->FirstName);
+
+            $data['targeted_member']['dogs']    =   $member->Dogs()->getTileData();
+            $data['targeted_member']['photos']  =   $member->Photosets()->getTileData();
+            $data['targeted_member']['videos']  =   $member->Videos()->getData();
         }
         return $data;
     }

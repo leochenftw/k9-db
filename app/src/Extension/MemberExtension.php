@@ -223,6 +223,7 @@ class MemberExtension extends DataExtension
                     'label' =>  $this->owner->Portrait()->Original()->Title,
                     'link'  =>  $this->owner->Portrait()->Original()->getAbsoluteURL()
                 ],
+                'cropped'           =>  $this->owner->Portrait()->getData(440, 440),
                 'container_x'       =>  $this->owner->Portrait()->ContainerX,
                 'container_y'       =>  $this->owner->Portrait()->ContainerY,
                 'container_width'   =>  $this->owner->Portrait()->ContainerWidth,

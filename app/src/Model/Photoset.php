@@ -127,4 +127,15 @@ class Photoset extends DataObject
             'photos'        =>  $this->Photos()->sort(['Sort' => 'ASC'])->getData()
         ];
     }
+
+    public function getTileData()
+    {
+        return  [
+            'id'            =>  $this->ID,
+            'title'         =>  $this->Title,
+            'date'          =>  $this->Created,
+            'cover'         =>  $this->Photos()->sort(['Sort' => 'ASC'])->first() ?
+                                $this->Photos()->sort(['Sort' => 'ASC'])->first()->getData() : null
+        ];
+    }
 }
