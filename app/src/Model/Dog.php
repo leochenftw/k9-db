@@ -11,7 +11,8 @@ use SilverStripe\Assets\Image;
 use KSolution\Dog;
 use SilverStripe\Assets\Folder;
 use SilverStripe\AssetAdmin\Controller\AssetAdmin;
-
+use App\Web\Model\BreedNotice;
+use App\Web\Model\TradeNotice;
 /**
  * Description
  *
@@ -72,7 +73,9 @@ class Dog extends DataObject
         'Portrait'          =>  Image::class,
         'Mother'            =>  Dog::class,
         'Father'            =>  Dog::class,
-        'CurrentOwner'      =>  Member::class
+        'CurrentOwner'      =>  Member::class,
+        'BreedNotice'       =>  BreedNotice::class,
+        'TradeNotice'       =>  TradeNotice::class
     ];
 
     public function populateDefaults()
@@ -156,6 +159,9 @@ class Dog extends DataObject
             'photos'    =>  $this->Photos()->sort(['Sort' => 'ASC'])->getData(),
             'dog_mum'   =>  $this->Mother()->exists() ? $this->Mother()->getData() : null,
             'dog_dad'   =>  $this->Father()->exists() ? $this->Father()->getData() : null,
+            'portrait'  =>  !$this->Portrait()->exists() ? ($this->Photos()->exists() ? $this->Photos()->first()->getData() : null) : $this->Portrait()->getData(),
+            'breed_notice'  =>  $this->BreedNotice()->exists(),
+            'trade_notice'  =>  $this->TradeNotice()->exists()
         ];
 
         // 'Portrait'          =>  Image::class,

@@ -64,9 +64,9 @@ class MemberExtension extends DataExtension
      * @var array
      */
     private static $has_many = [
-        'Photosets' =>  Photoset::class,
-        'Videos'    =>  VideoRecord::class,
-        'Dogs'      =>  Dog::Class
+        'Photosets'     =>  Photoset::class,
+        'Videos'        =>  VideoRecord::class,
+        'Dogs'          =>  Dog::Class
     ];
 
     private static $cascade_deletes = [

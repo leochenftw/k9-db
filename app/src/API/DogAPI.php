@@ -6,6 +6,8 @@ use SilverStripe\Security\Member;
 use Leochenftw\Debugger;
 use KSolution\Dog;
 use KSolution\Breed;
+use App\Web\Model\BreedNotice;
+use App\Web\Model\TradeNotice;
 
 class DogAPI extends RestfulController
 {
@@ -67,6 +69,22 @@ class DogAPI extends RestfulController
         // return $request->postVars();
         if ($request->Param('Action') == 'delete_photo') {
             return $this->delete_photo($request);
+        }
+
+        if ($request->Param('Action') == 'post_breed_notice') {
+            return $this->post_breed_notice($request);
+        }
+
+        if ($request->Param('Action') == 'post_trade_notice') {
+            return $this->post_trade_notice($request);
+        }
+
+        if ($request->Param('Action') == 'withdraw_breed_notice') {
+            return $this->withdraw_breed_notice($request);
+        }
+
+        if ($request->Param('Action') == 'withdraw_trade_notice') {
+            return $this->withdraw_trade_notice($request);
         }
 
         if ($request->Param('Action') == 'delete') {
@@ -183,6 +201,62 @@ class DogAPI extends RestfulController
         $dog->write();
 
         return $dog->getData();
+    }
+
+    private function post_breed_notice(&$request)
+    {
+        if ($id = $request->Param('ID')) {
+            $dog    =   $this->member->Dogs()->byID($id);
+            if (!empty($dog) && !$dog->BreedNotice()->exists()) {
+                $notice =   BreedNotice::create();
+                $notice->write();
+                $dog->BreedNoticeID =   $notice->ID;
+                return $dog->write();
+            }
+        }
+
+        return $this->httpError(400, '未指定犬只');
+    }
+
+    private function post_trade_notice(&$request)
+    {
+        if ($id = $request->Param('ID')) {
+            $dog    =   $this->member->Dogs()->byID($id);
+            if (!empty($dog) && !$dog->TradeNotice()->exists()) {
+                $notice =   TradeNotice::create();
+                $notice->write();
+                $dog->TradeNoticeID =   $notice->ID;
+                return $dog->write();
+            }
+        }
+
+        return $this->httpError(400, '未指定犬只');
+    }
+
+    private function withdraw_breed_notice(&$request)
+    {
+        if ($id = $request->Param('ID')) {
+            $dog    =   $this->member->Dogs()->byID($id);
+            if (!empty($dog) && $dog->BreedNotice()->exists()) {
+                $dog->BreedNotice()->delete();
+                return $dog->write();
+            }
+        }
+
+        return $this->httpError(400, '未指定犬只');
+    }
+
+    private function withdraw_trade_notice(&$request)
+    {
+        if ($id = $request->Param('ID')) {
+            $dog    =   $this->member->Dogs()->byID($id);
+            if (!empty($dog) && $dog->TradeNotice()->exists()) {
+                $dog->TradeNotice()->delete();
+                return $dog->write();
+            }
+        }
+
+        return $this->httpError(400, '未指定犬只');
     }
 
     private function delete_photo(&$request)
