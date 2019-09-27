@@ -8,11 +8,11 @@ use Page;
 use SilverStripe\Core\Config\Config;
 use Leochenftw\Utils\TencentCaptcha;
 
-class SignupController extends PageController
+class SignoutController extends PageController
 {
     public function getTitle()
     {
-        return '注册用户';
+        return '退出登录';
     }
 
     public function Title()
@@ -27,11 +27,8 @@ class SignupController extends PageController
 
         if ($page) {
             $data               =   $page->getData();
-            $data['pagetype']   =   'signup';
+            $data['pagetype']   =   'signout';
         }
-
-        $data['appid']  =   Config::inst()->get(TencentCaptcha::class, 'appid');
-        $data['title']  =   $this->getTitle();
 
         return $data;
     }

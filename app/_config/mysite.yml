@@ -52,9 +52,6 @@ Leochenftw\Utils\SMS:
 #   extra_requirements_javascript:
 #     - '/resources/cms-js/cms.js'
 
-Leochenftw\Controllers\APIBaseController:
-  AccessControlAllowOrigin : 'http://k9solution.leochen.co.nz/'
-
 SaltedHerring\Salted\Cropper\SaltedCroppableImage:
   extensions:
     - App\Web\Extension\SaltedImageExtension
@@ -82,10 +79,29 @@ SilverStripe\Core\Injector\Injector:
   Intervention\Image\ImageManager:
     constructor:
       - { driver: imagick }
+  Psr\Log\LoggerInterface:
+    calls:
+      LogFileHandler: [ pushHandler, [ %$LogFileHandler ] ]
+  LogFileHandler:
+    class: Monolog\Handler\StreamHandler
+    constructor:
+      - "../silverstripe.log"
+      - "info"
+
+SilverStripe\Control\Email\Email:
+  noreply_email:
+    leo@leochen.co.nz: '我爱工作犬'
+
+Leochenftw\Utils\TencentCaptcha:
+  appid: 2073413139
+  app_secret: 0gfF_gaXXSc1wZ6q0FsEKgw**
+  secret_id: AKIDwiJirkBktnRpyul2cy5wYu0qIWbTuXkk
+  secret_key: vc7PTHp7AyWoreDXeW9XgbGRQ9bnjPp0
 
 ---
 Only:
-  environment: 'dev'
+  environment: 'live'
 ---
-Leochenftw\Controllers\APIBaseController:
-  AccessControlAllowOrigin : 'https://localhost:8081'
+SilverStripe\Control\Email\Email:
+  noreply_email:
+    noreply@k9dog-club.com: '我爱工作犬'

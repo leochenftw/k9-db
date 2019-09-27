@@ -6,7 +6,9 @@ use SilverStripe\Security\SecurityToken;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\IdentityStore;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Core\Config\Config;
 use Leochenftw\Debugger;
+use Leochenftw\Utils\TencentCaptcha;
 
 class SignupAPI extends RestfulController
 {
@@ -60,29 +62,52 @@ class SignupAPI extends RestfulController
 
             return $this->httpError(400, '请提交验证码!');
 
-        } elseif ($mobile = $request->postVar('mobile')) {
-            if ($member = Member::get()->filter(['Email' => $mobile])->first()) {
-                if ($member->isActivated()) {
-                    return $this->httpError(403, '该手机号码已被注册.');
+        } else {
+            if ($mobile = $request->postVar('mobile')) {
+                if ($member = Member::get()->filter(['Phone' => $mobile])->first()) {
+                    if ($member->isActivated()) {
+                        return $this->httpError(403, '该手机号码已被注册.');
+                    }
+
+                    $member->send_sms();
+                    return  [
+                        'member_id' =>  $member->ID,
+                        'message'   =>  '验证码已发送. 请注意查收手机短信'
+                    ];
                 }
 
+                $member         =   Member::create();
+                $member->Email  =   $mobile;
+                $member->Phone  =   $mobile;
+                $member->write();
                 $member->send_sms();
+
                 return  [
                     'member_id' =>  $member->ID,
                     'message'   =>  '验证码已发送. 请注意查收手机短信'
                 ];
+            } elseif (($email = $request->postVar('email')) && ($password = $request->postVar('password')) && ($randstr = $request->postVar('randstr')) && ($ticket = $request->postVar('ticket'))) {
+                if (TencentCaptcha::validate($request->getIP(), $ticket, $randstr)) {
+                    if ($member = Member::get()->filter(['Email' => $email])->first()) {
+                        return $this->httpError(403, '该电子邮箱已被注册');
+                    }
+
+                    $member             =   Member::create();
+                    $member->Email      =   $email;
+                    $member->Password   =   $password;
+                    $member->write();
+                    $member->send_confirmation_email();
+
+                    Injector::inst()->get(IdentityStore::class)->logIn($member, true);
+
+                    return  [
+                        'member_id' =>  $member->ID,
+                        'message'   =>  '账号激活邮件已发送, 请注意查收.'
+                    ];
+                }
+
+                return $this->httpError(400, '请重新验证!');
             }
-
-            $member         =   Member::create();
-            $member->Email  =   $mobile;
-            $member->Phone  =   $mobile;
-            $member->write();
-            $member->send_sms();
-
-            return  [
-                'member_id' =>  $member->ID,
-                'message'   =>  '验证码已发送. 请注意查收手机短信'
-            ];
         }
 
         return $this->httpError(500, 'not sure');

@@ -16,6 +16,7 @@ use KSolution\Photoset;
 use KSolution\VideoRecord;
 use KSolution\Dog;
 use App\Web\Layout\PersonnelPage;
+use App\Web\Email\ActivationEmail;
 
 /**
  * Description
@@ -96,6 +97,13 @@ class MemberExtension extends DataExtension
     public function send_sms()
     {
         SMS::send($this->owner->Phone, $this->owner->ValidationKey);
+    }
+
+    public function send_confirmation_email()
+    {
+        $email  =   ActivationEmail::create($this->owner);
+
+        return $email->send();
     }
 
     public function isActivated()
@@ -207,12 +215,13 @@ class MemberExtension extends DataExtension
     public function getData()
     {
         $data   =   [
+            'pending_activation'    =>  !empty($this->owner->ValidationKey),
             'fullname'  =>  $this->owner->Surname . $this->owner->FirstName,
             'nickname'  =>  $this->owner->Username,
             'mobile'    =>  $this->owner->Phone,
             'identity'  =>  $this->owner->Identity,
             'wechat'    =>  $this->owner->WeChat,
-            'email'     =>  $this->is_email($this->owner->Email) ? $this->owner->Email : '',
+            'email'     =>  filter_var($this->owner->Email, FILTER_VALIDATE_EMAIL) ? $this->owner->Email : '',
             'type'      =>  strtolower($this->owner->Type),
             'province'  =>  empty($this->owner->Province) ? '' : $this->owner->Province,
             'city'      =>  empty($this->owner->City) ? '' : $this->owner->City,
@@ -266,9 +275,4 @@ class MemberExtension extends DataExtension
         return $data;
     }
 
-    private function is_email($email) {
-        $find1 = strpos($email, '@');
-        $find2 = strpos($email, '.');
-        return ($find1 !== false && $find2 !== false && $find2 > $find1 ? true : false);
-    }
 }

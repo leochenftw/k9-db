@@ -7,6 +7,7 @@ use SilverStripe\Security\Member;
 use SilverStripe\Security\IdentityStore;
 use SilverStripe\Core\Injector\Injector;
 use Leochenftw\Debugger;
+use Leochenftw\Utils\TencentCaptcha;
 
 class RecoveryAPI extends RestfulController
 {
@@ -62,6 +63,18 @@ class RecoveryAPI extends RestfulController
             }
 
             return $this->httpError(404, '没有该手机号匹配的账号.');
+        } elseif (($email = $request->postVar('email')) && ($randstr = $request->postVar('randstr')) && ($ticket = $request->postVar('ticket'))) {
+            if (TencentCaptcha::validate($request->getIP(), $ticket, $randstr)) {
+                if ($member = Member::get()->filter(['Email' => $email])->first()) {
+                    $member->send_confirmation_email();
+                }
+
+                return  [
+                    'message'   =>  '如果您的帐号存在, 我们将发送一封带有一次性登录凭证的邮件到您的邮箱. 请注意查收.'
+                ];
+            }
+
+            return $this->httpError(400, '请重新验证!');
         }
 
         return $this->httpError(400, '请输入手机号码!');

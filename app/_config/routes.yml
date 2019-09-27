@@ -9,6 +9,7 @@ SilverStripe\Control\Director:
     we-auth : 'KSolution\Controller\WeAuthController'
     signin : 'KSolution\Controller\SigninController'
     signup : 'KSolution\Controller\SignupController'
+    signout : 'KSolution\Controller\SignoutController'
     'promo-handler/$hash': 'KSolution\Controller\PromoHandler'
     'api/v1/signup' : 'Leochenftw\API\SignupAPI'
     'api/v1/signin' : 'Leochenftw\API\SigninAPI'
