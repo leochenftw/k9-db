@@ -23,6 +23,7 @@
     <meta name="theme-color" content="#ffffff"> --%>
     $SiteConfig.GoogleAnalyticsCode.RAW
     $SiteConfig.GTMHead.RAW
+    <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
 </head>
 <body <% if $i18nScriptDirection %>dir="$i18nScriptDirection"<% end_if %>>
 $SiteConfig.GTMBody.RAW
