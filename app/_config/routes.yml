@@ -6,6 +6,8 @@ After:
 ---
 SilverStripe\Control\Director:
   rules:
+    activation: App\Web\Layout\ActivationController
+    one-off-pass: App\Web\Layout\OneoffPassController
     we-auth : 'KSolution\Controller\WeAuthController'
     signin : 'KSolution\Controller\SigninController'
     signup : 'KSolution\Controller\SignupController'
@@ -16,7 +18,7 @@ SilverStripe\Control\Director:
     'api/v1/signout' : 'Leochenftw\API\SignoutAPI'
     'api/v1/recovery' : 'Leochenftw\API\RecoveryAPI'
     'api/v1/session' : 'Leochenftw\API\SessionAPI'
-    'api/v1/member' : 'Leochenftw\API\MemberAPI'
+    'api/v1/member/$action' : 'Leochenftw\API\MemberAPI'
     member/$action: 'App\Web\Layout\MemberCentreController'
     'api/v1/photo/$ID/$Action' : 'Leochenftw\API\PhotoAPI'
     'api/v1/video/$ID/$Action' : 'Leochenftw\API\VideoAPI'

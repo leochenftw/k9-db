@@ -17,6 +17,7 @@ use KSolution\VideoRecord;
 use KSolution\Dog;
 use App\Web\Layout\PersonnelPage;
 use App\Web\Email\ActivationEmail;
+use App\Web\Email\OneoffPassEmail;
 
 /**
  * Description
@@ -46,7 +47,9 @@ class MemberExtension extends DataExtension
         'JobTitle'          =>  'Varchar(32)',
         'Occupation'        =>  'Varchar(64)',
         'YearsExp'          =>  'Int',
-        'Viewed'            =>  'Int'
+        'Viewed'            =>  'Int',
+        'OneoffToken'       =>  'Varchar(128)',
+        'TokenGenTime'      =>  'Datetime'
     ];
 
     /**
@@ -106,9 +109,31 @@ class MemberExtension extends DataExtension
         return $email->send();
     }
 
+    public function send_oneoff_pass_email()
+    {
+        $this->GenerateOneOffToken();
+
+        $email  =   OneoffPassEmail::create($this->owner);
+        $email->send();
+
+        return [
+            'code'      =>  200,
+            'message'   =>  '通行证已经发出. 请查看电子邮箱, 并于24小时内使用. 超过24小时, 通行证将自动过期.'
+        ];
+    }
+
     public function isActivated()
     {
         return empty($this->owner->ValidationKey);
+    }
+
+    public function GenerateOneOffToken()
+    {
+        if ($this->owner->exists() && (empty($this->owner->OneoffToken) || strtotime($this->owner->TokenGenTime) < time() + 86400)) {
+            $this->owner->OneoffToken   =   sha1($this->owner->ID . rand() . time());
+            $this->owner->TokenGenTime  =   time();
+            $this->owner->write();
+        }
     }
 
     /**
@@ -215,7 +240,6 @@ class MemberExtension extends DataExtension
     public function getData()
     {
         $data   =   [
-            'pending_activation'    =>  !empty($this->owner->ValidationKey),
             'fullname'  =>  $this->owner->Surname . $this->owner->FirstName,
             'nickname'  =>  $this->owner->Username,
             'mobile'    =>  $this->owner->Phone,

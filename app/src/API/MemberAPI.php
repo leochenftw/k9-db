@@ -5,7 +5,7 @@ use SilverStripe\Security\SecurityToken;
 use SilverStripe\Security\Member;
 use Leochenftw\Debugger;
 use Leochenftw\Restful\RestfulController;
-
+use Leochenftw\Utils\TencentCaptcha;
 
 class MemberAPI extends RestfulController
 {
@@ -33,6 +33,12 @@ class MemberAPI extends RestfulController
 
     public function post($request)
     {
+        if ($action = $request->Param('action')) {
+            if ($this->hasMethod('do_' . $action)) {
+                return $this->{'do_' . $action}();
+            }
+        }
+
         if ($portrait_data = $request->postVar('portrait_data')) {
             $portrait_data  =   json_decode($request->postVar('portrait_data'));
 
@@ -80,6 +86,12 @@ class MemberAPI extends RestfulController
             return true;
         }
 
+        if (!empty($request->postVar('fullname')) && $request->postVar('fullname') != 'null') {
+            $names  =   $this->parse_name($request->postVar('fullname'));
+            $this->member->FirstName    =   $names['first'];
+            $this->member->Surname      =   $names['last'];
+        }
+
         $this->member->Email        =   $request->postVar('email') == 'null' ?
                                         null :
                                         $request->postVar('email');
@@ -122,6 +134,29 @@ class MemberAPI extends RestfulController
         return $this->member->getData();
     }
 
+    private function parse_name($name)
+    {
+        if (!empty(trim($name))) {
+            $names  =   explode(' ', $name);
+            if (count($names) > 1) {
+                return [
+                    'first' =>  $names[0],
+                    'last'  =>  $names[count($names) - 1]
+                ];
+            }
+
+            return [
+                'last'  =>  mb_substr($name, 0, 1),
+                'first' =>  mb_substr($name, 1)
+            ];
+        }
+
+        return [
+            'last'  =>  null,
+            'first' =>  null
+        ];
+    }
+
     public function get($request)
     {
         if ($member =   Member::currentUser()) {
@@ -129,5 +164,25 @@ class MemberAPI extends RestfulController
         }
 
         return $this->httpError(403, '未登录');
+    }
+
+    private function do_resend_activation()
+    {
+        if (!$this->member->isActivated()) {
+            return $this->member->send_confirmation_email();
+        }
+
+        return $this->httpError(400, '您的账户已激活, 请刷新页面.');
+    }
+
+    private function do_issue_oneoff_pass()
+    {
+        if (($email = $request->postVar('email')) && ($randstr = $request->postVar('randstr')) && ($ticket = $request->postVar('ticket'))) {
+            if (TencentCaptcha::validate($request->getIP(), $ticket, $randstr)) {
+                return $this->member->send_oneoff_pass_email();
+            }
+        }
+
+        return $this->httpError(400, '无效请求');
     }
 }

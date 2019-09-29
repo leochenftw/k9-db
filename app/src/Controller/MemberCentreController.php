@@ -5,6 +5,9 @@ namespace App\Web\Layout;
 use PageController;
 use Page;
 use Leochenftw\Debugger;
+use SilverStripe\Security\Member;
+use SilverStripe\Core\Config\Config;
+use Leochenftw\Utils\TencentCaptcha;
 
 /**
  * Description
@@ -34,6 +37,8 @@ class MemberCentreController extends PageController
             $data['pagetype']   =   'member-centre';
         }
 
+        $data['pending_activation'] =   !empty(Member::currentUser()->ValidationKey);
+
         if ($action = $this->request->Param('action')) {
             if ($action == 'security') {
                 $data['title']  =   '账户安全';
@@ -49,6 +54,8 @@ class MemberCentreController extends PageController
         } else {
             $data['title']      =   $this->getTitle();
         }
+
+        $data['appid']  =   Config::inst()->get(TencentCaptcha::class, 'appid');
 
         return $data;
     }

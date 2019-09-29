@@ -66,11 +66,11 @@ class RecoveryAPI extends RestfulController
         } elseif (($email = $request->postVar('email')) && ($randstr = $request->postVar('randstr')) && ($ticket = $request->postVar('ticket'))) {
             if (TencentCaptcha::validate($request->getIP(), $ticket, $randstr)) {
                 if ($member = Member::get()->filter(['Email' => $email])->first()) {
-                    $member->send_confirmation_email();
+                    $member->send_oneoff_pass_email();
                 }
 
                 return  [
-                    'message'   =>  '如果您的帐号存在, 我们将发送一封带有一次性登录凭证的邮件到您的邮箱. 请注意查收.'
+                    'message'   =>  '如果您的帐号存在, 我们将发送一封带有一次性登录通行证的邮件到您的邮箱. 请注意查收并于24小时内使用通行证. 通行证将于颁发的24小时后自动过期.'
                 ];
             }
 
