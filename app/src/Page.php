@@ -16,6 +16,7 @@ namespace {
     use SilverStripe\Security\SecurityToken;
     use App\Web\Model\Promotion;
     use App\Web\Layout\Homepage;
+    use SilverStripe\Core\Convert;
 
     class Page extends SiteTree
     {
