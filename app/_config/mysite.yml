@@ -90,7 +90,7 @@ SilverStripe\Core\Injector\Injector:
 
 SilverStripe\Control\Email\Email:
   noreply_email:
-    noreply@k9dog-club.com: '我爱工作犬'
+    info@k9dog-club.com: '我爱工作犬'
 
 Leochenftw\Utils\TencentCaptcha:
   appid: 2073413139

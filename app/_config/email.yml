@@ -1,0 +1,16 @@
+---
+Name: myemailconfig
+After:
+  - '#emailconfig'
+---
+SilverStripe\Core\Injector\Injector:
+  Swift_Transport:
+    class: Swift_SmtpTransport
+    properties:
+      Host: smtp.exmail.qq.com
+      Port: 465
+      Encryption: ssl
+    calls:
+      Username: [ setUsername, ['info@k9dog-club.com'] ]
+      Password: [ setPassword, ['K9Sasdf23!'] ]
+      AuthMode: [ setAuthMode, ['login'] ]
